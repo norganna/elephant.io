@@ -34,6 +34,10 @@ class Client {
     private $debug;
     private $handshakeTimeout = null;
 
+	public function __destruct() {
+		$this->close();
+	}
+
     public function __construct($socketIOUrl, $socketIOPath = 'socket.io', $protocol = 1, $read = true, $checkSslPeer = true, $debug = false) {
         $this->socketIOUrl = $socketIOUrl.'/'.$socketIOPath.'/'.(string)$protocol;
         $this->read = $read;
@@ -145,9 +149,6 @@ class Client {
 		    throw new \Exception('Unable to send message to socket.io');
 	    }
 
-        // wait 100ms before closing connexion
-        usleep(100*1000);
-
         $this->stdout('debug', 'Sent '.$raw_message);
 
         return $this;
@@ -179,6 +180,7 @@ class Client {
     {
         if ($this->fd) {
             $this->send(self::TYPE_DISCONNECT);
+			usleep(100000);
             fclose($this->fd);
 
             return true;
